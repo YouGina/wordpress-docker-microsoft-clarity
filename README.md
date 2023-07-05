@@ -1,3 +1,5 @@
-# Wordpress Docker - auto install
+# Wordpress Docker - microsoft-clarity - auto install
 
-This repository is intended as a template to quickly setup a Wordpress instance for testing plugins. You can add plugins to the plugin folder and add them to the init.sh to be automatically activated on install. This should speed up the proces of testing.
+This repository is intended to quickly test a Wordpress instance with the microsoft-clarity plugin
+
+Start with: `docker-compose up --build`
