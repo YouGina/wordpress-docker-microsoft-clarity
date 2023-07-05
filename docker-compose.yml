@@ -1,0 +1,75 @@
+version: '3.1'
+
+services:
+ 
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_USER_PASSWORD}
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", 'mysqladmin -u${MYSQL_USER} -p${MYSQL_USER_PASSWORD} ping']
+      interval: 10s
+      timeout: 2s
+      retries: 10
+  
+  
+  wordpress:
+    build:
+      context: .
+      dockerfile: Dockerfile-wp
+    restart: always
+    ports:
+      - 8080:80
+    depends_on:
+      db:
+        condition: service_healthy
+    links:
+      - db:mysql
+    volumes:
+      - wordpress:/var/www/html
+      - ./plugins:/var/www/html/wp-content/plugins/
+      - ./docker/php/php_config.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+    healthcheck:
+      test: curl --fail -s http://localhost:80/ || exit 1
+      interval: 10s
+      timeout: 2s
+      retries: 10
+
+  cli:
+    build:
+      context: .
+      dockerfile: Dockerfile-cli
+    volumes:
+      - wordpress:/wordpress
+      - ./plugins:/wordpress/wp-content/plugins/
+    depends_on:
+      wordpress:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      
+    environment:
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_USER_PASSWORD: ${MYSQL_USER_PASSWORD}
+      WORDPRESS_ADMIN_USR: ${WORDPRESS_ADMIN_USER}
+      WORDPRESS_ADMIN_EMAIL: ${WORDPRESS_ADMIN_EMAIL}
+      WORDPRESS_ADMIN_PASSWORD: ${WORDPRESS_ADMIN_PASSWORD}
+      WORDPRESS_DOMAIN_NAME: ${WORDPRESS_DOMAIN_NAME}
+      WORDPRESS_WEBSITE_URL: ${WORDPRESS_WEBSITE_URL}
+      WORDPRESS_LOCALE: en_US
+      WORDPRESS_WEBSITE_TITLE: "Test Application"
+
+
+
+
+volumes:
+  wordpress:
+  db:
