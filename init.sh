@@ -29,7 +29,7 @@ wp user create subscriber subscriber@example.com --user_pass=subscriber --role=s
 
 echo " Activating Wordpress plugins...";
 # Edit the lines below to install and activate plugins on installation.
-wp plugin install export-all-urls --activate 
+wp plugin install microsoft-clarity --activate 
 
 # Optionally use this for the latest dev version: 
 # wp plugin install bbpress --version=dev --activate 
